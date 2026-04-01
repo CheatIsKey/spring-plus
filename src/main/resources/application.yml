@@ -12,3 +12,5 @@ spring:
 jwt:
   secret:
     key: ${SECRET_KEY}
+  access-token-validity-time: 1800000
+  refresh-token-validity-time: 604800000

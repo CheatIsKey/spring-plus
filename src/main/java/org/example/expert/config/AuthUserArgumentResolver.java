@@ -1,46 +1,60 @@
 package org.example.expert.config;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.example.expert.domain.auth.exception.AuthException;
+import lombok.NonNull;
 import org.example.expert.domain.common.annotation.Auth;
 import org.example.expert.domain.common.dto.AuthUser;
-import org.example.expert.domain.user.enums.UserRole;
+import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+@Component
 public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        boolean hasAuthAnnotation = parameter.getParameterAnnotation(Auth.class) != null;
-        boolean isAuthUserType = parameter.getParameterType().equals(AuthUser.class);
-
-        // @Auth 어노테이션과 AuthUser 타입이 함께 사용되지 않은 경우 예외 발생
-        if (hasAuthAnnotation != isAuthUserType) {
-            throw new AuthException("@Auth와 AuthUser 타입은 함께 사용되어야 합니다.");
-        }
-
-        return hasAuthAnnotation;
+        boolean hasAnnotation = parameter.hasParameterAnnotation(Auth.class);
+        boolean hasLoginUserType = AuthUser.class.isAssignableFrom(parameter.getParameterType());
+        return hasAnnotation && hasLoginUserType;
     }
 
+    //    @Override
+//    public Object resolveArgument(
+//            @Nullable MethodParameter parameter,
+//            @Nullable ModelAndViewContainer mavContainer,
+//            NativeWebRequest webRequest,
+//            @Nullable WebDataBinderFactory binderFactory
+//    ) {
+//        HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+//
+//        // JwtFilter 에서 set 한 userId, email, userRole 값을 가져옴
+//        Long userId = (Long) request.getAttribute("userId");
+//        String email = (String) request.getAttribute("email");
+//        UserRole userRole = UserRole.of((String) request.getAttribute("userRole"));
+//
+//        return new AuthUser(userId, email, userRole);
+//    }
     @Override
-    public Object resolveArgument(
-            @Nullable MethodParameter parameter,
-            @Nullable ModelAndViewContainer mavContainer,
-            NativeWebRequest webRequest,
-            @Nullable WebDataBinderFactory binderFactory
-    ) {
-        HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+    public Object resolveArgument(@NonNull MethodParameter parameter,
+                                  @Nullable ModelAndViewContainer mavContainer,
+                                  @NonNull NativeWebRequest webRequest,
+                                  @Nullable WebDataBinderFactory binderFactory) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // JwtFilter 에서 set 한 userId, email, userRole 값을 가져옴
-        Long userId = (Long) request.getAttribute("userId");
-        String email = (String) request.getAttribute("email");
-        UserRole userRole = UserRole.of((String) request.getAttribute("userRole"));
+        // 인증 정보가 없거나 비로그인(anonymous) 상태이면 즉시 예외 발생
+        if (authentication == null
+                || authentication.getPrincipal().equals("anonymousUser")
+                || !(authentication.getPrincipal() instanceof AuthUser)) {
+            throw new InvalidRequestException("로그인이 필요한 서비스입니다.");
+        }
 
-        return new AuthUser(userId, email, userRole);
+        // JwtAuthenticationFilter에서 Principal에 저장한 AuthUser 객체를 그대로 반환
+        return authentication.getPrincipal();
     }
 }
