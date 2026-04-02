@@ -26,6 +26,10 @@ public class SecurityConfig {
             .formLogin(form -> form.disable())   // 기본 폼 로그인 비활성화
             .httpBasic(basic -> basic.disable()) // HTTP Basic 인증 비활성화
 
+            .headers(headers -> headers
+                    .frameOptions(frame -> frame.sameOrigin())
+            )
+
             // JWT = Stateless → 세션을 생성하지 않도록 설정
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
