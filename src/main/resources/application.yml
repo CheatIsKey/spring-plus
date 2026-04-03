@@ -1,34 +1,52 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./h2db/testdb;MODE=MySQL;AUTO_SERVER=TRUE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:mysql://localhost:3306/plus_spring_assignment?allowPublicKeyRetrieval=true&useSSL=false&rewriteBatchedStatements=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 12345678
 
-  h2:
-    console:
-      enabled: true        # 브라우저에서 H2 콘솔 접근 허용
-      path: /h2-console    # 접근 경로: http://localhost:8080/h2-console
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
   jpa:
     hibernate:
-      ddl-auto: create     # 앱 시작 시 테이블 자동 생성
-    defer-datasource-initialization: true
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
         show-sql: true
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.MySQLDialect
 
   sql:
     init:
-      mode: always         # data.sql 자동 실행
-
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+      mode: never   # MySQL에서는 data.sql 비활성화
 
 jwt:
   secret:
-    key: ${SECRET_KEY}
+    key: adklfjaeiwaflkdsjflajsdlkfhowiejfkeljlksdjflakjsdkfljalskdjfalksjdflkasjdlfkasfdsfdsvs
+
+# === H2 Database ===
+
+#spring:
+#  datasource:
+#    url:
+#    username: root
+#    password: 12345678
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#  jpa:
+#    show-sql: true
+#    hibernate:
+#      ddl-auto: create-drop
+#    properties:
+#      hibernate:
+#        format_sql: true
+#    defer-datasource-initialization: true
+#
+#jwt:
+#  secret:
+#    key: adklfjaeiwaflkdsjflajsdlkfhowiejfkeljlksdjflakjsdkfljalskdjfalksjdflkasjdlfkasfdsfdsvs
+#
+#
+#
