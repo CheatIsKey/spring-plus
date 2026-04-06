@@ -23,7 +23,7 @@ public class AdminAccessLoggingAspect {
 
     private final HttpServletRequest request;
 
-    @Before("execution(* org.example.expert.domain.user.controller.UserController.getUser(..))")
+    @Before("execution(* org.example.expert.domain.user.controller.UserAdminController.changeUserRole(..))")
     public void logAfterChangeUserRole(JoinPoint joinPoint) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = (authentication != null && authentication.getPrincipal() instanceof AuthUser authUser)
