@@ -43,9 +43,11 @@ public class SecurityConfig {
                 ).permitAll()
 
                 // 수정 포인트: 인증 없이 접근 가능한 API 경로 추가
-                .requestMatchers(HttpMethod.POST,
+                .requestMatchers(
                         "/auth/signin",
-                        "/auth/signup"
+                        "/auth/signup",
+                        "/actuator/info",
+                        "/actuator/health"
                 ).permitAll()
 
                 .requestMatchers(HttpMethod.GET,

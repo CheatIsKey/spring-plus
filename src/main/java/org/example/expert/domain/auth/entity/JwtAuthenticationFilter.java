@@ -13,10 +13,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 
 @Slf4j
@@ -32,9 +35,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
 
         if (StringUtils.hasText(token) && provider.validateToken(token)) {
-            Long   memberId = provider.getMemberId(token);
-            String email    = provider.getEmail(token);
-            String role     = provider.getRole(token);
+            Long memberId = provider.getMemberId(token);
+            String email = provider.getEmail(token);
+            String role = provider.getRole(token);
 
             UserRole userRole = (role != null) ? UserRole.of(role) : UserRole.USER;
 
