@@ -1,12 +1,14 @@
 package org.example.expert.domain.common.dto;
 
 import lombok.Getter;
+import org.example.expert.aop.dto.Masking;
 import org.example.expert.domain.user.enums.UserRole;
 
 @Getter
 public class AuthUser {
 
     private final Long id;
+    @Masking
     private final String email;
     private final UserRole userRole;
 
